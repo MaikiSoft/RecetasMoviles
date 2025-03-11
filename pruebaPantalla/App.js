@@ -7,7 +7,7 @@ import RandomScreen from './pages/RandomScreen';
 import Main from './pages/MainRecetasScreen';
 import PasosReceta from './pages/PasosRecetaScreen';
 import FiltroScreen from './pages/FiltrosScreen'
-
+import { GlobalProvider } from './context/GlobalContext';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -40,6 +40,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <GlobalProvider>
       <NavigationContainer>
         <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
           <Stack.Navigator>
@@ -49,6 +50,7 @@ export default function App() {
           </Stack.Navigator>
         </SafeAreaView>
       </NavigationContainer>
+      </GlobalProvider>
     </SafeAreaProvider>
   );
 }

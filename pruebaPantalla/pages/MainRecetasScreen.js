@@ -1,25 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
+import { GlobalContext } from '../context/GlobalContext';
 
 const MainRecetas = () => {
+    const { DataFood } = useContext(GlobalContext);
+    const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
     const [filtro, setFiltro] = useState({});
-    const [SelectedFood, setSelectedFood] = useState({});
-    const textFiltro = 'Beef';
     const [modalVisible, setModalVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
 
     const navigation = useNavigation();
 
     useEffect(() => {
+        if(DataFood.filtro === 'c'){
         const fetchFiltro = async () => {
-            const data = await getCategoriasFiltro(textFiltro);
+            console.log('contexto', DataFood);
+            const data = await getCategoriasFiltro(DataFood.text);
             setFiltro(data);
         };
-        fetchFiltro();
-    }, []);
+        fetchFiltro();}
+        else if(DataFood.filtro === 'a'){
+            const fetchFiltro = async () => {
+                console.log('contexto', DataFood);
+                const data = await getAreasFiltro(DataFood.text);
+                console.log(data)
+                setFiltro(data);
+            };
+            fetchFiltro();
+        } else {
+            const fetchFiltro = async () => {
+                console.log('contexto', DataFood);
+                const data = await getIngredientesFiltro(DataFood.text);
+                setFiltro(data);
+            };
+            fetchFiltro();
+        }
+    }, [DataFood]);
 
     const fetchFood = async (name) => {
         const data = await getPLato(name);

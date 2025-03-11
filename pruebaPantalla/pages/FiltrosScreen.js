@@ -1,14 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, TextInput,ScrollView } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { getCategorias, getAreas, getIngredientes } from '../services/ApiRecetas';
+import { GlobalContext } from '../context/GlobalContext';
 
 export default function FiltrosScreen() {
+  const { DataFood, setDataFood } = useContext(GlobalContext);
   const [categoria, setCategoria] = useState([]);
   const [area, setArea] = useState([]);
   const [ingrediente, setIngrediente] = useState([]);
   const [selected, setSelected] = useState('');
   const [verLista, setVerLista] = useState(false);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -57,13 +62,23 @@ export default function FiltrosScreen() {
     return (
       <>
         {x.map((cat, index) => (
-          <Pressable key={index} style={styles.options}>
+          <Pressable key={index} style={styles.options} onPress={() => aplicarFiltro(cat[text], select)}>
             <Text>{cat[text]}</Text>
           </Pressable>
         ))}
       </>
     );
   };
+
+  const aplicarFiltro = (filtroName, filtro) => {
+    setDataFood(prevState => ({
+      ...prevState,
+      filtro: filtro[0].toLowerCase(),
+      text: filtroName,
+    }));
+    console.log('filtro', DataFood);
+    navigation.goBack()
+  }
 
   return (
     <View style={styles.container}>
