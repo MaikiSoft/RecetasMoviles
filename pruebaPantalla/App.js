@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import RandomScreen from './pages/RandomScreen';
 import Main from './pages/MainRecetasScreen';
 import PasosReceta from './pages/PasosRecetaScreen';
+import FiltroScreen from './pages/FiltrosScreen'
 
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
           <Stack.Navigator>
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}></Stack.Screen>
             <Stack.Screen name="PasoRecetas" component={PasosReceta}></Stack.Screen>
+            <Stack.Screen name="Filtros" component={FiltroScreen}></Stack.Screen>
           </Stack.Navigator>
         </SafeAreaView>
       </NavigationContainer>

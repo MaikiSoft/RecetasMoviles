@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal } from 'react-native';
 import { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
 
 const MainRecetas = () => {
@@ -9,6 +10,8 @@ const MainRecetas = () => {
     const textFiltro = 'Beef';
     const [modalVisible, setModalVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         const fetchFiltro = async () => {
@@ -36,7 +39,7 @@ const MainRecetas = () => {
             <View style={backModal}>
                 <View style={styles.head}>
                     <Text>volver</Text>
-                    <Text>Categoria</Text>
+                    <Pressable onPress={() => navigation.navigate('Filtros')}><Text>Filtro</Text></Pressable>
                 </View>
 
                 <FlatList

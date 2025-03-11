@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image, Pressable, Modal, ActivityIndicator } fr
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { getRecetaRandom } from '../services/ApiRecetas';
-import { getPais } from '../services/paisesService';
+import { getPais, getPaisPorNombre } from '../services/paisesService';
 
 const RandomScreen = () => {
     const navigation = useNavigation();
@@ -15,7 +15,7 @@ const RandomScreen = () => {
     useEffect(() => {
         const fetchPais = async () => {
             setLoading(true);
-            const data = await getPais(area);
+            const data = area != 'usa' ? await getPais(area) : await getPaisPorNombre(area);
             setPais(data[0]);
             setLoading(false);
         };
@@ -27,7 +27,8 @@ const RandomScreen = () => {
         const recetaData = await getRecetaRandom();
         if (recetaData.length > 0) {
             setReceta(recetaData[0]);
-            setArea(recetaData[0].strArea.toLowerCase());
+            let areaCorrecta = recetaData[0].strArea.toLowerCase() == 'american' ? 'usa' : recetaData[0].strArea.toLowerCase();
+            setArea(areaCorrecta);
         }
         setModalVisible(true);
         setLoading(false);
@@ -42,31 +43,32 @@ const RandomScreen = () => {
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text>Prueba una receta de:</Text>
+                        <Text style={{ fontSize: 28, paddingBottom: 5, textAlign: 'center' }}>Prueba una receta de:</Text>
                         {loading ? (
                             <ActivityIndicator size="large" color="#0000ff" />
                         ) : (
                             pais && (
-                                <View style={styles.card}>
-                                    <Text>{pais.nombre}</Text>
-                                    <Image source={{ uri: pais.bandera }} style={styles.iconTab} />
+                                <View>
+                                    <Text style={{ fontSize: 20, paddingBottom: 20, textAlign: 'center' }}>{pais.nombre}</Text>
+                                    <Image source={{ uri: pais.bandera }} style={styles.bandera} />
                                 </View>
                             )
                         )}
-                        <Pressable
-                            style={styles.button}
-                            onPress={() => {
-                                setModalVisible(false)
-                                navigation.navigate("PasoRecetas")
-                            }}>
-                            <Text style={styles.textStyle}>Ver receta</Text>
-                        </Pressable>
-                        <Pressable
-                            style={styles.button}
-                            onPress={() => setModalVisible(!modalVisible)}>
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </Pressable>
-
+                        <View style={styles.buttonContainer}>
+                            <Pressable
+                                style={styles.button}
+                                onPress={() => {
+                                    setModalVisible(false)
+                                    navigation.navigate("PasoRecetas", {receta: receta})
+                                }}>
+                                <Text style={styles.textStyle}>Ver receta</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.button}
+                                onPress={() => setModalVisible(!modalVisible)}>
+                                <Text style={styles.textStyle}>Hide Modal</Text>
+                            </Pressable>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -103,14 +105,24 @@ const styles = StyleSheet.create({
         width: 35,
         height: 35,
     },
+    bandera: {
+        width: 170,
+        height: 100,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        marginTop: 10
+    },
     button: {
         borderRadius: 20,
         padding: 10,
-        elevation: 2,
-        backgroundColor: 'orange'
+        backgroundColor: 'orange',
+        marginHorizontal:10
     },
     modalView: {
-        height: 300,
+        height: 360,
         width: 300,
         margin: 20,
         backgroundColor: 'white',
