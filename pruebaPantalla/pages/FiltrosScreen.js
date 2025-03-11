@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, TextInput,ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TextInput,ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { getCategorias, getAreas, getIngredientes } from '../services/ApiRecetas';
+import { getCategorias, getAreas, getIngredientes, getPLato } from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
 
 export default function FiltrosScreen() {
@@ -12,6 +12,8 @@ export default function FiltrosScreen() {
   const [ingrediente, setIngrediente] = useState([]);
   const [selected, setSelected] = useState('');
   const [verLista, setVerLista] = useState(false);
+  const [AutoCompletar, setAutoCompletar] = useState([]);
+  const [text, setText] = useState('');
 
   const navigation = useNavigation();
 
@@ -32,6 +34,20 @@ export default function FiltrosScreen() {
     fetchCategorias();
     fetchAreas();
   }, []);
+
+  useEffect(() => {
+    if (text.length > 2) {
+      getPLato(text)
+        .then((meals) => {
+          setAutoCompletar(meals || []);
+        })
+        .catch((error) => console.error(error));
+    } else {
+      setAutoCompletar([]);
+    }
+  }, [text]);
+
+  
 
   const vistaLista = (select) => {
     if (selected === select) {
@@ -79,16 +95,42 @@ export default function FiltrosScreen() {
     console.log('filtro', DataFood);
     navigation.goBack()
   }
-
+  const handleSelect = (filtroName) => {
+    setDataFood(prevState => ({
+      ...prevState,
+      filtro: '',
+      text: filtroName,
+    }));
+    console.log('filtro', DataFood);
+    navigation.goBack()
+  };
   return (
     <View style={styles.container}>
       <ScrollView>
       <View style={styles.containerHead}>
-        <TextInput placeholder="Buscar" style={styles.buscar} />
+      <TextInput
+        style={styles.input}
+        placeholder="Buscar receta..."
+        value={text}
+        onChangeText={setText}
+      />
         <Pressable style={styles.btnSelect}>
           <Text>Buscar</Text>
         </Pressable>
-      </View>
+        </View>
+        {AutoCompletar.length > 0 && (
+        <FlatList
+          data={AutoCompletar}
+          keyExtractor={(item) => item.idMeal}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleSelect(item.strMeal,)}>
+              <Text style={styles.AutoCompletar}>{item.strMeal}</Text>
+            </TouchableOpacity>
+          )}
+          style={styles.suggestionList}
+        />
+      )}
+      
       <View style={styles.containerHead}>
         <Pressable onPress={() => vistaLista('Categoria')} style={styles.btnSelect}>
           <Text>Categorias</Text>
@@ -119,6 +161,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 10,
+  },
+  AutoCompletar: {
+    padding: 10, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#ddd',
   },
   btnSelect: {
     backgroundColor: '#DCDDDC',
