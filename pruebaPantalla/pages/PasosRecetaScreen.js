@@ -67,14 +67,14 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#000',
+        backgroundColor: '#fff',
     },
     text: {
         fontSize: 20,
         fontWeight: 'bold',
     },
     item: {
-        backgroundColor: '#f9c2ff',
+        backgroundColor: 'orange',
         width: 300,
         padding: 20,
         marginVertical: 8,

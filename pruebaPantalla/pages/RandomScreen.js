@@ -74,9 +74,9 @@ const RandomScreen = () => {
             </Modal>
             <View style={{ paddingBottom: 10 }}>
                 <Image
-                    style={styles.iconTab}
+                    style={{width:300, height:300}}
                     source={{
-                        uri: 'https://reactnative.dev/img/tiny_logo.png',
+                        uri: 'https://th.bing.com/th/id/R.f92f4215313a66c9583afb66238b8baa?rik=7fjLJzmiZlrAKQ&pid=ImgRaw&r=0',
                     }}
                 />
             </View>
@@ -92,7 +92,7 @@ const RandomScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#04023E',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -108,6 +108,8 @@ const styles = StyleSheet.create({
     bandera: {
         width: 170,
         height: 100,
+        borderWidth: 3,
+        borderColor: 'black'
     },
     buttonContainer: {
         flexDirection: 'row',

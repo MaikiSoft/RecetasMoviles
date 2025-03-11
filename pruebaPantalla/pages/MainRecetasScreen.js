@@ -116,7 +116,10 @@ const MainRecetas = () => {
 
                                     <Pressable
                                         style={[styles.btnModalRecetas, styles.buttonRedirect]}
-                                        onPress={() => CloseModal()}>
+                                        onPress={() => {
+                                            CloseModal()
+                                            navigation.navigate("PasoRecetas", { receta: SelectedFood[0]})
+                                        }}>
                                         <Text style={styles.textStyle}>Ver receta</Text>
                                     </Pressable>
                                 </View>
