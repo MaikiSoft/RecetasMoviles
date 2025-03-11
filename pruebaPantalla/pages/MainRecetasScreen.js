@@ -15,14 +15,15 @@ const MainRecetas = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        if(DataFood.filtro === 'c'){
-        const fetchFiltro = async () => {
-            console.log('contexto', DataFood);
-            const data = await getCategoriasFiltro(DataFood.text);
-            setFiltro(data);
-        };
-        fetchFiltro();}
-        else if(DataFood.filtro === 'a'){
+        if (DataFood.filtro === 'c') {
+            const fetchFiltro = async () => {
+                console.log('contexto', DataFood);
+                const data = await getCategoriasFiltro(DataFood.text);
+                setFiltro(data);
+            };
+            fetchFiltro();
+        }
+        else if (DataFood.filtro === 'a') {
             const fetchFiltro = async () => {
                 console.log('contexto', DataFood);
                 const data = await getAreasFiltro(DataFood.text);
@@ -86,7 +87,7 @@ const MainRecetas = () => {
                     keyboardShouldPersistTaps="handled"
                     style={{ flex: 1 }} // Asegura que FlatList use todo el espacio disponible
                 />
-                <StatusBar style="auto" />
+
             </View>
 
             <Modal
@@ -102,25 +103,45 @@ const MainRecetas = () => {
                         {SelectedFood.length > 0 ? (
 
                             <>
+                                <View style={styles.imageContainer}>
+                                    <Image source={{ uri: SelectedFood[0].strMealThumb }} style={{ width: 350, height: 250, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} />
+                                </View>
                                 <Text style={styles.modalText}>hola {SelectedFood[0].strTags}</Text>
-                                <Pressable
-                                    style={[styles.btnModal, styles.buttonClose]}
-                                    onPress={() => CloseModal()}>
-                                    <Text style={styles.textStyle}>Hide Modal</Text>
-                                </Pressable>
+                                <View style={styles.buttonContainer}>
+                                    <Pressable
+                                        style={[styles.btnModal, styles.buttonClose]}
+                                        onPress={() => CloseModal()}>
+                                        <Text style={styles.textStyle}>cerrar</Text>
+                                    </Pressable>
+
+                                    <Pressable
+                                        style={[styles.btnModalRecetas, styles.buttonRedirect]}
+                                        onPress={() => CloseModal()}>
+                                        <Text style={styles.textStyle}>Ver receta</Text>
+                                    </Pressable>
+                                </View>
                             </>
 
                         ) : (
                             <><Text style={styles.modalText}>cargando...</Text>
-                                <Pressable
-                                    style={[styles.btnModal, styles.buttonClose]}
-                                    onPress={() => CloseModal()}>
-                                    <Text style={styles.textStyle}>Hide Modal</Text>
-                                </Pressable>
+                                <View style={styles.buttonContainer}>
+                                    <Pressable
+                                        style={[styles.btnModal, styles.buttonClose]}
+                                        onPress={() => CloseModal()}>
+                                        <Text style={styles.textStyle}>error</Text>
+                                    </Pressable>
+
+                                    <Pressable
+                                        style={[styles.btnModalRecetas, styles.buttonClose]}
+                                        onPress={() => CloseModal()}>
+                                        <Text style={styles.textStyle}>Ver receta</Text>
+                                    </Pressable>
+                                </View>
                             </>)}
                     </View>
                 </View>
             </Modal>
+            <StatusBar style="auto" />
         </>
     )
 }
@@ -162,24 +183,45 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+
+    buttonContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 20,
+    },    
     btnModal: {
         width: 100,
         height: 30,
-        justifyContent: 'center',
+        justifyContent: 'center', 
         alignItems: 'center',
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
         backgroundColor: '#5BB3FF',
+        
+    },
+    btnModalRecetas: {
+        width: 100,
+        height: 30,
+        justifyContent: 'center', 
+        alignItems: 'center',
+        borderRadius: 10,
+        marginTop: 10,
+        borderWidth: 1,
+        backgroundColor: '#5BB3FF',
+        
     },
     centeredView: {
         flex: 1,
-        justifyContent: 'center',
+        margin: 80,
+        justifyContent: 'top',
         alignItems: 'center',
     },
     modalView: {
-        width: 300,
-        height: 300,
+        width: 350,
+        height: 'auto',
         margin: 20,
         backgroundColor: 'white',
         borderRadius: 20,
@@ -195,10 +237,13 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     buttonOpen: {
-        backgroundColor: '#F194FF',
+        backgroundColor: '#4489FE',
     },
     buttonClose: {
-        backgroundColor: '#2196F3',
+        backgroundColor: '#E4080A',
+    },
+    buttonRedirect: {
+        backgroundColor: '#7DDA58',
     },
     textStyle: {
         color: 'white',
@@ -208,6 +253,13 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: 'center',
+    },
+    imageContainer: {
+        position: 'relative',  // Coloca la imagen en la parte superior
+        top: -35,              // La mueve hacia arriba fuera del modal
+        alignSelf: 'center',   // La centra horizontalmente
+
+
     },
 });
 
