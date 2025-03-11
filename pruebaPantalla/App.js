@@ -1,109 +1,53 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, FlatList, Pressable, SafeAreaView,Modal } from 'react-native';
-import { useState, useEffect } from 'react';
-import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from './services/ApiRecetas';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Image } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import RandomScreen from './pages/RandomScreen';
+import Main from './pages/MainRecetasScreen';
+import PasosReceta from './pages/PasosRecetaScreen';
+
 
 export default function App() {
-  
-  const [filtro, setFiltro] = useState({});
-  const [SelectedFood, setSelectedFood] = useState({});
-  const textFiltro = 'Beef';
-  const [modalVisible, setModalVisible] = useState(false);
-  const [backModal, setBackModal] = useState(styles.container);
+  const Tab = createBottomTabNavigator();
+  const Stack = createNativeStackNavigator();
 
-  useEffect(() => {
-    const fetchFiltro = async () => {
-      const data = await getCategoriasFiltro(textFiltro);
-      setFiltro(data);
-    };
-    fetchFiltro();
-  }, []);
-
-  const fetchFood = async (name) => {
-    const data = await getPLato(name);
-    setSelectedFood(data);
-    setBackModal(styles.containerDark);
-    setModalVisible(true)
-  };
-
-  const CloseModal = () => {
-    setModalVisible(!modalVisible);
-    setBackModal(styles.container);
-  }
-
-  console.log('filtro', SelectedFood);
-  return (
-    <>
-    <View style={backModal}>
-      <View style={styles.head}>
-        <Text>volver</Text>
-        <Text>Categoria</Text>
-      </View>
-
-      <FlatList
-        data={filtro}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image
-              source={{ uri: item.strMealThumb }}
-              style={{ width: 150, height: 150 }}
-            />
-            <View style={{ padding: 10 }}>
-              <Text>{item.strMeal}</Text>
-              <Text>Area</Text>
-              <Pressable
-          style={[styles.btnModal, styles.buttonOpen]}
-          onPress={() => fetchFood(item.strMeal)}>
-          <Text style={styles.textStyle}>Show Modal</Text>
-        </Pressable>
-            </View>
-          </View>
-        )}
-        ListEmptyComponent={<Text>No hay datos</Text>}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-        keyboardShouldPersistTaps="handled"
-        style={{ flex: 1 }} // Asegura que FlatList use todo el espacio disponible
+  const TabNavigator = () => (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={Main}
+        options={{
+          title: 'Principal',
+          tabBarIcon: ({ focused }) => (
+            <Image source={require('./assets/icon.png')} style={styles.iconTab} />
+          ),
+        }}
       />
-      
-        
-        
-     
-      <StatusBar style="auto" />
-    </View>
-    <Modal
-    animationType="slide"
-    transparent={true}
-    visible={modalVisible}
-    onRequestClose={() => {
-      Alert.alert('Modal has been closed.');
-      setModalVisible(!modalVisible);
-    }}>
-      <View style={styles.centeredView}>
-      <View style={styles.modalView}>
-  {SelectedFood.length > 0 ? (
-    
-    <>
-        <Text style={styles.modalText}>hola {SelectedFood[0].strTags}</Text>
-        <Pressable
-          style={[styles.btnModal, styles.buttonClose]}
-          onPress={() => CloseModal()}>
-          <Text style={styles.textStyle}>Hide Modal</Text>
-        </Pressable>
-    </>
- 
-  ) : (
-  <><Text style={styles.modalText}>cargando...</Text>
-  <Pressable
-    style={[styles.btnModal, styles.buttonClose]}
-    onPress={() => CloseModal()}>
-    <Text style={styles.textStyle}>Hide Modal</Text>
-  </Pressable>
-  </>)}
-  </View>
-  </View>
-   </Modal>
-   </>
+      <Tab.Screen
+        name="Random"
+        component={RandomScreen}
+        options={{
+          title: 'Receta Aleatoria',
+          tabBarIcon: ({ focused }) => (
+            <Image source={require('./assets/icon.png')} style={styles.iconTab} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  )
+
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
+          <Stack.Navigator>
+            <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}></Stack.Screen>
+            <Stack.Screen name="PasoRecetas" component={PasosReceta}></Stack.Screen>
+          </Stack.Navigator>
+        </SafeAreaView>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
@@ -111,8 +55,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 50,
     justifyContent: 'flex-start',
+  },
+  iconTab: {
+    width: 35,
+    height: 35,
   },
   containerDark: {
     flex: 1,
@@ -145,7 +92,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  btnModal:{
+  btnModal: {
     width: 100,
     height: 30,
     justifyContent: 'center',

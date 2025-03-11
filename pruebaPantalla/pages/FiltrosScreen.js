@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, TextInput,ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
-import { getCategorias, getAreas, getIngredientes } from './services/ApiRecetas';
+import { getCategorias, getAreas, getIngredientes } from '../services/ApiRecetas';
 
-export default function App() {
+export default function FiltrosScreen() {
   const [categoria, setCategoria] = useState([]);
   const [area, setArea] = useState([]);
   const [ingrediente, setIngrediente] = useState([]);
