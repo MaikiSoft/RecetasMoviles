@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal } from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
+import { getPais } from '../services/paisesService';
 
 const MainRecetas = () => {
     const { DataFood } = useContext(GlobalContext);
@@ -11,7 +12,7 @@ const MainRecetas = () => {
     const [filtro, setFiltro] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
-
+    
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -31,7 +32,7 @@ const MainRecetas = () => {
                 setFiltro(data);
             };
             fetchFiltro();
-        } else {
+        } else  if (DataFood.filtro === 'i') {
             const fetchFiltro = async () => {
                 console.log('contexto', DataFood);
                 const data = await getIngredientesFiltro(DataFood.text);
@@ -39,7 +40,21 @@ const MainRecetas = () => {
             };
             fetchFiltro();
         }
+             else {
+            const fetchFiltro = async () => {
+                console.log('contexto', DataFood);
+                const data = await getPLato(DataFood.text);
+                setFiltro(data);
+            };
+            fetchFiltro();
+        }
     }, [DataFood]);
+    const traerImagenBander = async (nameBand) => {
+            let x = nameBand.ToLowerCase();
+            const data = await getPais(x);
+            console.log(data);
+            return <Image source={{uri: data[0].bandera}} style={{width:100, height:100}}/>;
+    };
 
     const fetchFood = async (name) => {
         const data = await getPLato(name);
@@ -52,6 +67,20 @@ const MainRecetas = () => {
         setModalVisible(!modalVisible);
         setBackModal(styles.container);
     }
+
+    const ingredientes = () => {
+        let ingredientesArray = [];
+    
+        for (let i = 1; i < 21; i++) {
+            if (SelectedFood[0][`strIngredient${i}`] !== '' && SelectedFood[0][`strIngredient${i}`] !== null) {
+                ingredientesArray.push(
+                    <Text key={i}>{SelectedFood[0][`strIngredient${i}`]} - {SelectedFood[0][`strMeasure${i}`]}</Text>
+                );
+            }
+        }
+    
+        return ingredientesArray; // Devuelve todos los ingredientes como un array de elementos JSX
+    };
 
     console.log('filtro', SelectedFood);
     return (
@@ -73,7 +102,6 @@ const MainRecetas = () => {
                             />
                             <View style={{ padding: 10 }}>
                                 <Text>{item.strMeal}</Text>
-                                <Text>Area</Text>
                                 <Pressable
                                     style={[styles.btnModal, styles.buttonOpen]}
                                     onPress={() => fetchFood(item.strMeal)}>
@@ -106,7 +134,13 @@ const MainRecetas = () => {
                                 <View style={styles.imageContainer}>
                                     <Image source={{ uri: SelectedFood[0].strMealThumb }} style={{ width: 350, height: 250, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} />
                                 </View>
-                                <Text style={styles.modalText}>hola {SelectedFood[0].strTags}</Text>
+                                <ScrollView style={{ maxHeight: 250 }}>
+                                <Text><Text style={styles.titleModal}>Plato:</Text> {SelectedFood[0].strMeal}</Text>
+                                <Text><Text style={styles.titleModal}>Ingredientes principales:</Text> {SelectedFood[0].strTags}</Text>
+                                <Text><Text style={styles.titleModal}>Area:</Text> {() => traerImagenBander(SelectedFood[0].strArea)}</Text>
+                                
+                                {ingredientes()}
+                                
                                 <View style={styles.buttonContainer}>
                                     <Pressable
                                         style={[styles.btnModal, styles.buttonClose]}
@@ -123,6 +157,7 @@ const MainRecetas = () => {
                                         <Text style={styles.textStyle}>Ver receta</Text>
                                     </Pressable>
                                 </View>
+                                </ScrollView>
                             </>
 
                         ) : (
@@ -155,6 +190,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
     },
+    titleModal:{
+        fontWeight: 'bold',
+    },
     containerDark: {
         flex: 1,
         backgroundColor: '#fff',
@@ -175,8 +213,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         marginLeft: 10,
+        marginRight: 10,
         justifyContent: 'flex-start',
-        width: '100%',
+        width: '95%',
         marginTop: 10,
         height: 200,
         borderRadius: 10,
@@ -254,7 +293,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     modalText: {
-        marginBottom: 15,
+        marginBottom: 5,
         textAlign: 'center',
     },
     imageContainer: {
