@@ -208,10 +208,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
         borderWidth: 1,
+        backgroundColor: 'orange',
     },
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#b0b0b0',
         justifyContent: 'flex-start',
     },
     titleModal:{
