@@ -44,8 +44,8 @@ const PasosRecetaScreen = () => {
                 <FlatList
                     ListHeaderComponent={
                         <>
-                            <View style={styles.imagenContainer}>
-                                <Image source={{ uri: receta.strMealThumb }} style={{ width: 200, height: 180 }}></Image>
+                            <View>
+                                <Image source={{ uri: receta.strMealThumb }} style={styles.imagenContainer}></Image>
                             </View>
                         </>
                     }
@@ -54,7 +54,7 @@ const PasosRecetaScreen = () => {
                     keyExtractor={item => item.id}
                     ListFooterComponent={
                         <>
-                            <View>
+                            <View style={{margin:'auto', borderWidth:3}}>
                                 <YoutubePlayer
                                     height={200}
                                     width={330}
@@ -89,15 +89,20 @@ const styles = StyleSheet.create({
         width: 300,
         padding: 20,
         marginVertical: 8,
-        marginHorizontal: 16,
         borderRadius:20,
         borderWidth: 3,
-        borderColor:'black'
+        borderColor: 'black',
+        margin: 'auto'
     },
     imagenContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingBottom: 10
+        paddingBottom: 10,
+        borderWidth: 1,
+        borderRadius: 100,
+        height: 200,
+        width: 200,
+        margin:'auto'
     },
     title: {
         fontSize: 18,

@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Image, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, Modal, ActivityIndicator, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getRecetaRandom } from '../services/ApiRecetas';
 import { getPais, getPaisPorNombre } from '../services/paisesService';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -12,11 +12,12 @@ const RandomScreen = () => {
     const [receta, setReceta] = useState([]);
     const [pais, setPais] = useState([]);
     const [loading, setLoading] = useState(true);
+    const rotateAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         const fetchPais = async () => {
             setLoading(true);
-            const data = area != 'usa' ? await getPais(area) : await getPaisPorNombre(area);
+            const data = area !== 'usa' ? await getPais(area) : await getPaisPorNombre(area);
             setPais(data[0]);
             setLoading(false);
         };
@@ -25,23 +26,31 @@ const RandomScreen = () => {
 
     const OpenModal = async () => {
         setLoading(true);
-        const recetaData = await getRecetaRandom();
-        if (recetaData.length > 0) {
-            setReceta(recetaData[0]);
-            let areaCorrecta = recetaData[0].strArea.toLowerCase() == 'american' ? 'usa' : recetaData[0].strArea.toLowerCase();
-            setArea(areaCorrecta);
-        }
-        setModalVisible(true);
-        setLoading(false);
+        Animated.timing(rotateAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start(async () => {
+            const recetaData = await getRecetaRandom();
+            if (recetaData.length > 0) {
+                setReceta(recetaData[0]);
+                let areaCorrecta = recetaData[0].strArea.toLowerCase() === 'american' ? 'usa' : recetaData[0].strArea.toLowerCase();
+                setArea(areaCorrecta);
+            }
+            setModalVisible(true);
+            setLoading(false);
+            rotateAnim.setValue(0);
+        });
     };
+
+    const rotateInterpolation = rotateAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
 
     return (
         <View style={styles.container}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-            >
+            <Modal animationType="slide" transparent={true} visible={modalVisible}>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={{ fontSize: 28, paddingBottom: 5, textAlign: 'center' }}>Prueba una receta de:</Text>
@@ -59,8 +68,8 @@ const RandomScreen = () => {
                             <Pressable
                                 style={styles.button}
                                 onPress={() => {
-                                    setModalVisible(false)
-                                    navigation.navigate("PasoRecetas", {receta: receta})
+                                    setModalVisible(false);
+                                    navigation.navigate("PasoRecetas", { receta: receta });
                                 }}>
                                 <Text style={styles.textStyle}>Ver receta</Text>
                             </Pressable>
@@ -74,24 +83,22 @@ const RandomScreen = () => {
                 </View>
             </Modal>
             <View style={{ paddingBottom: 10 }}>
-                <View style={{ alignItems: 'center'}} >
+                <View style={{ alignItems: 'center' }}>
                     <Icon name="keyboard-arrow-down" size={65} color="red" />
                 </View>
-                <Image
-                    style={{width:300, height:300}}
+                <Animated.Image
+                    style={[styles.image, { transform: [{ rotate: rotateInterpolation }] }]}
                     source={{
                         uri: 'https://th.bing.com/th/id/R.f92f4215313a66c9583afb66238b8baa?rik=7fjLJzmiZlrAKQ&pid=ImgRaw&r=0',
                     }}
                 />
             </View>
-            <Pressable
-                style={styles.button}
-                onPress={OpenModal}>
-                <Text >Prueba algo nuevo</Text>
+            <Pressable style={styles.button} onPress={OpenModal}>
+                <Text>Prueba algo nuevo</Text>
             </Pressable>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -105,27 +112,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    iconTab: {
-        width: 35,
-        height: 35,
-    },
     bandera: {
         width: 170,
         height: 100,
         borderWidth: 3,
-        borderColor: 'black'
+        borderColor: 'black',
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 10,
-        marginTop: 10
+        marginTop: 10,
     },
     button: {
         borderRadius: 20,
         padding: 10,
         backgroundColor: 'orange',
-        marginHorizontal:10
+        marginHorizontal: 10,
     },
     modalView: {
         height: 360,
@@ -143,6 +146,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+    },
+    image: {
+        width: 300,
+        height: 300,
     },
 });
 
