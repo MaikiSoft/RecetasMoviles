@@ -118,7 +118,8 @@ export default function FiltrosScreen() {
           <Text>Buscar</Text>
         </Pressable>
         </View>
-        {AutoCompletar.length > 0 && (
+        <View style={styles.resultsSearch}>       
+           {AutoCompletar.length > 0 && (
         <FlatList
           data={AutoCompletar}
           keyExtractor={(item) => item.idMeal}
@@ -129,7 +130,8 @@ export default function FiltrosScreen() {
           )}
           style={styles.suggestionList}
         />
-      )}
+      )}</View>
+
       
       <View style={styles.containerHead}>
         <Pressable onPress={() => vistaLista('Categoria')} style={styles.btnSelect}>
@@ -156,6 +158,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  resultsSearch: {
+    marginVertical: 10,
+    width: '70%',
+    marginHorizontal: 'auto',
+    justifyContent: 'center',
+    alignItems: 'center',
+    maxHeight: 200,
+    alignItems: 'center',
+  },
   containerHead: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -165,7 +176,9 @@ const styles = StyleSheet.create({
   AutoCompletar: {
     padding: 10, 
     borderBottomWidth: 1, 
-    borderBottomColor: '#ddd',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
   },
   btnSelect: {
     backgroundColor: '#DCDDDC',
@@ -203,6 +216,13 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     marginHorizontal: 5,
     height: 40,
+    width: 200,
+    borderRadius: 10,
+  },
+  input: {
+    height: 40,
+    borderWidth: 1,
+    padding: 10,
     width: 200,
     borderRadius: 10,
   },

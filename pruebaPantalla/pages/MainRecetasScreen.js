@@ -1,19 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
 import { getPais } from '../services/paisesService';
 
 const MainRecetas = () => {
-    const { DataFood } = useContext(GlobalContext);
+    const { DataFood, setDataFood } = useContext(GlobalContext);
     const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
     const [filtro, setFiltro] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
-    
     const navigation = useNavigation();
+
+    const randomFood = ['Beef', 'Chicken', 'Pork', 'Lamb', 'Vegetarian', 'Vegan', 'Dessert', 'Seafood', 'Breakfast', 'Pasta', 'Starter', 'Side', 'Miscellaneous'];
+
 
     useEffect(() => {
         if (DataFood.filtro === 'c') {
@@ -82,13 +84,27 @@ const MainRecetas = () => {
         return ingredientesArray; // Devuelve todos los ingredientes como un array de elementos JSX
     };
 
+    const cambio = () =>{
+        let random = Math.floor(Math.random() * randomFood.length);
+        console.log(randomFood[random]);
+        if(DataFood.text !== randomFood[random]){
+            setDataFood(prevState => ({
+                ...prevState,
+                text: randomFood[random],
+            }));
+        } else {
+            cambio();
+        }
+        
+    }
+
     console.log('filtro', SelectedFood);
     return (
         <>
             <View style={backModal}>
                 <View style={styles.head}>
-                    <Text>volver</Text>
-                    <Pressable onPress={() => navigation.navigate('Filtros')}><Text>Filtro</Text></Pressable>
+                <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
                 </View>
 
                 <FlatList
@@ -105,7 +121,7 @@ const MainRecetas = () => {
                                 <Pressable
                                     style={[styles.btnModal, styles.buttonOpen]}
                                     onPress={() => fetchFood(item.strMeal)}>
-                                    <Text style={styles.textStyle}>Show Modal</Text>
+                                    <Text style={styles.textStyle}>Ver mas</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -185,6 +201,14 @@ const MainRecetas = () => {
 }
 
 const styles = StyleSheet.create({
+    btnOptions: {
+        width: 100,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        borderWidth: 1,
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -238,6 +262,7 @@ const styles = StyleSheet.create({
         height: 30,
         justifyContent: 'center', 
         alignItems: 'center',
+        textAlign: 'center',
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
@@ -291,6 +316,9 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
     },
     modalText: {
         marginBottom: 5,
