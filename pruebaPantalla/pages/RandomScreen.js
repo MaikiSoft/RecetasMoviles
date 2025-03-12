@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 const RandomScreen = () => {
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
-    const [area, setArea] = useState("american");
+    const [area, setArea] = useState([]);
     const [receta, setReceta] = useState([]);
     const [pais, setPais] = useState([]);
     const [loading, setLoading] = useState(true);

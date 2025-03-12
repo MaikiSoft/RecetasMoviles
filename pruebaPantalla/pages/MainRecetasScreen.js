@@ -123,7 +123,7 @@ const MainRecetas = () => {
                     ListEmptyComponent={<Text>No hay datos</Text>}
                     contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
                     keyboardShouldPersistTaps="handled"
-                    style={{ flex: 1 }} // Asegura que FlatList use todo el espacio disponible
+                    style={{ flex: 1 }}
                 />
             </ImageBackground>
             </View>
@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     imageContainer: {
-        position: 'relative',  // Coloca la imagen en la parte superior
-        top: -35,              // La mueve hacia arriba fuera del modal
-        alignSelf: 'center',   // La centra horizontalmente
+        position: 'relative',  
+        top: -35,         
+        alignSelf: 'center',   
 
 
     },
