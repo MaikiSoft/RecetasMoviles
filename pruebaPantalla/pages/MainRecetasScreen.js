@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView, ImageBackground } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
-import { getPais } from '../services/paisesService';
 
 const MainRecetas = () => {
+    const fondo = {uri: 'https://previews.123rf.com/images/tkuzminka/tkuzminka2204/tkuzminka220400063/184750090-cartel-de-manta-de-picnic-rojo-fondo-de-dise%C3%B1o-a-cuadros-a-cuadros-banner-rojo-gingham-para-la.jpg'}
     const { DataFood, setDataFood } = useContext(GlobalContext);
     const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
     const [filtro, setFiltro] = useState({});
@@ -51,12 +51,6 @@ const MainRecetas = () => {
             fetchFiltro();
         }
     }, [DataFood]);
-    const traerImagenBander = async (nameBand) => {
-            let x = nameBand.ToLowerCase();
-            const data = await getPais(x);
-            console.log(data);
-            return <Image source={{uri: data[0].bandera}} style={{width:100, height:100}}/>;
-    };
 
     const fetchFood = async (name) => {
         const data = await getPLato(name);
@@ -106,7 +100,7 @@ const MainRecetas = () => {
                 <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
                 <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
                 </View>
-
+                <ImageBackground source={fondo} resizeMode="cover" style={{ justifyContent: 'center', flex: 1}}>
                 <FlatList
                     data={filtro}
                     keyExtractor={(item, index) => index.toString()}
@@ -114,10 +108,10 @@ const MainRecetas = () => {
                         <View style={styles.card}>
                             <Image
                                 source={{ uri: item.strMealThumb }}
-                                style={{ width: 150, height: 150 }}
+                                style={{ width: 150, height: 150, borderRadius: 10, marginLeft: 10 }}
                             />
                             <View style={{ padding: 10 }}>
-                                <Text>{item.strMeal}</Text>
+                                <Text style={{fontSize:20, textAlign:'center', maxWidth:200, width:200}}>{item.strMeal}</Text>
                                 <Pressable
                                     style={[styles.btnModal, styles.buttonOpen]}
                                     onPress={() => fetchFood(item.strMeal)}>
@@ -131,7 +125,7 @@ const MainRecetas = () => {
                     keyboardShouldPersistTaps="handled"
                     style={{ flex: 1 }} // Asegura que FlatList use todo el espacio disponible
                 />
-
+            </ImageBackground>
             </View>
 
             <Modal
@@ -148,12 +142,12 @@ const MainRecetas = () => {
 
                             <>
                                 <View style={styles.imageContainer}>
-                                    <Image source={{ uri: SelectedFood[0].strMealThumb }} style={{ width: 350, height: 250, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} />
+                                    <Image source={{ uri: SelectedFood[0].strMealThumb }} style={{ width: 350, height: 250, borderTopLeftRadius: 20, borderTopRightRadius: 20}} />
                                 </View>
                                 <ScrollView style={{ maxHeight: 250 }}>
                                 <Text><Text style={styles.titleModal}>Plato:</Text> {SelectedFood[0].strMeal}</Text>
                                 <Text><Text style={styles.titleModal}>Ingredientes principales:</Text> {SelectedFood[0].strTags}</Text>
-                                <Text><Text style={styles.titleModal}>Area:</Text> {() => traerImagenBander(SelectedFood[0].strArea)}</Text>
+                                <Text><Text style={styles.titleModal}>Ingredientes:</Text></Text>
                                 
                                 {ingredientes()}
                                 
@@ -234,8 +228,8 @@ const styles = StyleSheet.create({
         borderBottomColor: '#000',
     },
     card: {
+        backgroundColor: '#d6eeff',
         flexDirection: 'row',
-        backgroundColor: '#fff',
         alignItems: 'center',
         marginLeft: 10,
         marginRight: 10,
@@ -261,9 +255,9 @@ const styles = StyleSheet.create({
     btnModal: {
         width: 100,
         height: 30,
-        justifyContent: 'center', 
-        alignItems: 'center',
-        textAlign: 'center',
+        textAlign:'center',
+        maxWidth:200, 
+        margin: 'auto',
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
