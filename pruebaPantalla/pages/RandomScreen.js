@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { getRecetaRandom } from '../services/ApiRecetas';
 import { getPais, getPaisPorNombre } from '../services/paisesService';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const RandomScreen = () => {
     const navigation = useNavigation();
@@ -66,13 +67,16 @@ const RandomScreen = () => {
                             <Pressable
                                 style={styles.button}
                                 onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={styles.textStyle}>Hide Modal</Text>
+                                <Text style={styles.textStyle}>Cerrar</Text>
                             </Pressable>
                         </View>
                     </View>
                 </View>
             </Modal>
             <View style={{ paddingBottom: 10 }}>
+                <View style={{ alignItems: 'center'}} >
+                    <Icon name="keyboard-arrow-down" size={65} color="red" />
+                </View>
                 <Image
                     style={{width:300, height:300}}
                     source={{
