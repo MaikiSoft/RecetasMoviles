@@ -1,10 +1,12 @@
-import { StyleSheet, Image, View, Text, FlatList, Pressable } from 'react-native';
+import { StyleSheet, Image, View, Text, FlatList, Pressable, ImageBackground } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
 
 const PasosRecetaScreen = () => {
+    const image = { uri: 'https://img.freepik.com/premium-vector/top-view-picnic-summer-design_91128-80.jpg?w=996' };
+
     const route = useRoute();
     const { receta } = route.params;
 
@@ -35,29 +37,36 @@ const PasosRecetaScreen = () => {
 
     //console.log(receta)
     return (
+
         <View style={styles.container}>
-            <Text style={styles.text}>{receta.strMeal}</Text>
-            <View style={styles.imagenContainer}>
-                <Image source={{ uri: receta.strMealThumb }} style={{ width: 200, height: 180 }}></Image>
-            </View>
-            <FlatList
-                data={instrucciones}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                ListFooterComponent={
-                    <>
-                        <View>
-                            <YoutubePlayer
-                                height={200}
-                                width={330}
-                                play={playing}
-                                videoId={receta.strYoutube.split("v=")[1]}
-                                onChangeState={onStateChange}
-                            />
-                        </View>
-                    </>
-                }
-            />
+            <ImageBackground source={image} resizeMode="cover" style={{ justifyContent: 'center', flex: 1}}>
+                <Text style={styles.text}>{receta.strMeal}</Text>
+                <FlatList
+                    ListHeaderComponent={
+                        <>
+                            <View style={styles.imagenContainer}>
+                                <Image source={{ uri: receta.strMealThumb }} style={{ width: 200, height: 180 }}></Image>
+                            </View>
+                        </>
+                    }
+                    data={instrucciones}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    ListFooterComponent={
+                        <>
+                            <View>
+                                <YoutubePlayer
+                                    height={200}
+                                    width={330}
+                                    play={playing}
+                                    videoId={receta.strYoutube.split("v=")[1]}
+                                    onChangeState={onStateChange}
+                                />
+                            </View>
+                        </>
+                    }
+                />
+            </ImageBackground>
         </View>
     )
 }
@@ -67,11 +76,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#04023E',
     },
     text: {
         fontSize: 20,
         fontWeight: 'bold',
+        textAlign: 'center',
+        color:'white'
     },
     item: {
         backgroundColor: 'orange',
@@ -79,11 +90,14 @@ const styles = StyleSheet.create({
         padding: 20,
         marginVertical: 8,
         marginHorizontal: 16,
+        borderRadius:20,
+        borderWidth: 3,
+        borderColor:'black'
     },
     imagenContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingBottom:10
+        paddingBottom: 10
     },
     title: {
         fontSize: 18,
