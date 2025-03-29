@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import RandomScreen from './pages/RandomScreen';
 import Main from './pages/MainRecetasScreen';
+import {LoginScreen} from './pages/LoginScreen';
 import PasosReceta from './pages/PasosRecetaScreen';
 import FiltroScreen from './pages/FiltrosScreen'
 import { GlobalProvider } from './context/GlobalContext';
@@ -43,7 +44,8 @@ export default function App() {
       <GlobalProvider>
       <NavigationContainer>
         <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
-          <Stack.Navigator>
+          <Stack.Navigator initialRouteName='Login' screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}></Stack.Screen>
             <Stack.Screen name="PasoRecetas" component={PasosReceta}></Stack.Screen>
             <Stack.Screen name="Filtros" component={FiltroScreen}></Stack.Screen>
