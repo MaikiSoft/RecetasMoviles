@@ -85,3 +85,14 @@ export const getRecetaRandom = async () => {
     return [];
   }
 }
+
+export const getRecetaPorId = async (recetaId) => {
+  try {
+    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recetaId}`);
+    const data = await response.json();
+    return data.meals;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}

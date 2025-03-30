@@ -1,70 +1,45 @@
-import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView, ImageBackground } from 'react-native';
-import { useState, useEffect, useContext } from 'react';
+import { StyleSheet, Text, View, Image, Pressable, ActivityIndicator, FlatList, Modal, ScrollView, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
+import React, { useState, useEffect, useContext } from 'react';
+import { getRecetaPorId, getPLato} from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const MainRecetas = () => {
-
-    const { DataFood, setDataFood } = useContext(GlobalContext);
-    const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
-    const [filtro, setFiltro] = useState({});
-    const [modalVisible, setModalVisible] = useState(false);
-    const [backModal, setBackModal] = useState(styles.container);
+const FavoritosScreen = () => {
+    
     const navigation = useNavigation();
-
-    const randomFood = ['Beef', 'Chicken', 'Pork', 'Lamb', 'Vegetarian', 'Vegan', 'Dessert', 'Seafood', 'Breakfast', 'Pasta', 'Starter', 'Side', 'Miscellaneous'];
+    const [modalVisible, setModalVisible] = useState(false);
+    const [receta, setReceta] = useState([]);
+    const [backModal, setBackModal] = useState(styles.container);
+    const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
     const { favoritos, toggleFavorito } = useContext(GlobalContext);
+    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
-        if (DataFood.filtro === 'c') {
-            const fetchFiltro = async () => {
-                console.log('contexto', DataFood);
-                const data = await getCategoriasFiltro(DataFood.text);
-                setFiltro(data);
-            };
-            fetchFiltro();
-        }
-        else if (DataFood.filtro === 'a') {
-            const fetchFiltro = async () => {
-                console.log('contexto', DataFood);
-                const data = await getAreasFiltro(DataFood.text);
-                console.log(data)
-                setFiltro(data);
-            };
-            fetchFiltro();
-        } else if (DataFood.filtro === 'i') {
-            const fetchFiltro = async () => {
-                console.log('contexto', DataFood);
-                const data = await getIngredientesFiltro(DataFood.text);
-                setFiltro(data);
-            };
-            fetchFiltro();
-        }
-        else {
-            const fetchFiltro = async () => {
-                console.log('contexto', DataFood);
-                const data = await getPLato(DataFood.text);
-                setFiltro(data);
-            };
-            fetchFiltro();
-        }
-    }, [DataFood]);
+        console.log(favoritos);
 
-    const fetchFood = async (name) => {
-        const data = await getPLato(name);
-        setSelectedFood(data);
-        setBackModal(styles.containerDark);
-        setModalVisible(true)
-    };
+        if (favoritos.size === 0) {
+            setLoading(true);
+        } else {
+            const fetchRecetas = async () => {
+                setLoading(true);
+                const recetasArray = [];
+                for (let recetaId of favoritos) {
+                    const data = await getRecetaPorId(recetaId); // Obtener receta por ID
+                    if (data && data.length > 0) {
+                        recetasArray.push(data[0]); // Agregar la receta a la lista
+                    }
+                }
+                console.log(recetasArray);
 
-    const CloseModal = () => {
-        setModalVisible(!modalVisible);
-        setBackModal(styles.container);
-    }
+                setReceta(recetasArray); // Guardar todas las recetas obtenidas
+                setLoading(false);
+            };
+            fetchRecetas();
+        }
+        console.log(receta);
+    }, [favoritos]);
 
     const ingredientes = () => {
         let ingredientesArray = [];
@@ -80,30 +55,17 @@ const MainRecetas = () => {
         return ingredientesArray; // Devuelve todos los ingredientes como un array de elementos JSX
     };
 
-    const cambio = () => {
-        let random = Math.floor(Math.random() * randomFood.length);
-        console.log(randomFood[random]);
-        if (DataFood.text !== randomFood[random]) {
-            setDataFood(prevState => ({
-                ...prevState,
-                text: randomFood[random],
-            }));
-        } else {
-            cambio();
-        }
-
-    }
-
-    const logout = async () => {
-        try {
-            await signOut(auth);
-            console.log('cerrada');
-            navigation.replace('Login');
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
-        }
+    const fetchFood = async (name) => {
+        const data = await getPLato(name);
+        setSelectedFood(data);
+        setBackModal(styles.containerDark);
+        setModalVisible(true)
     };
 
+    const CloseModal = () => {
+        setModalVisible(!modalVisible);
+        setBackModal(styles.container);
+    }
 
     const renderItem = ({ item }) => (
         <Pressable style={styles.card} onPress={() => fetchFood(item.strMeal)}>
@@ -122,37 +84,21 @@ const MainRecetas = () => {
         </Pressable>
     );
 
-    //console.log(receta)
+
     return (
         <View style={styles.container}>
             <ImageBackground source={require('../assets/Bufett.jpg')}
                 style={styles.background} imageStyle={styles.imageBack} resizeMode="cover">
-            <FlatList
-                ListHeaderComponent={
-                    <>
-                        <View style={styles.profileView}>
-                            <View style={styles.leftColumn}>
-                                <Text style={styles.text}>Foto Perfil</Text>
-                            </View>
-                            <View style={styles.rightColumn}>
-                                <Text style={styles.text}>Nombre</Text>
-                                <Text style={styles.text}>email</Text>
-                                <Text style={styles.text}>Rectas favoritas:</Text>
-                            </View>
-                        </View>
-                        <View style={styles.head}>
-                            <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
-                            <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
-                            <Pressable onPress={logout} style={styles.btnOptions}><Text>Cerrar Sesion</Text></Pressable>
-                        </View>
-                    </>
-                }
-                data={filtro}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={renderItem}
-                numColumns={2}
-                columnWrapperStyle={styles.row}
-                />
+                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>Mis Favoritos</Text>
+                {loading ? <ActivityIndicator size="large" color="#0000ff" /> : (
+                    <FlatList
+                        data={receta}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={renderItem}
+                        numColumns={2}
+                        columnWrapperStyle={styles.row}
+                    />
+                )}
             </ImageBackground>
             <Modal
                 animationType="slide"
@@ -215,9 +161,8 @@ const MainRecetas = () => {
                 </View>
             </Modal>
         </View>
-
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -353,12 +298,6 @@ const styles = StyleSheet.create({
         justifyContent: 'top',
         alignItems: 'center',
     },
-    containerDark: {
-        flex: 1,
-        backgroundColor: '#fff',
-        marginTop: 50,
-        justifyContent: 'flex-start',
-    },
     modalView: {
         width: 350,
         height: 'auto',
@@ -417,4 +356,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default MainRecetas;
+export default FavoritosScreen;

@@ -28,7 +28,6 @@ const PasosRecetaScreen = () => {
             <Text style={styles.title}>{(item.id)}</Text>
             {expandedId === item.id && (
                 <View>
-                    {/* <Image source={{ uri: item.image }} style={styles.image} /> */}
                     <Text style={styles.description}>{item.texto}</Text>
                 </View>
             )}
