@@ -7,7 +7,7 @@ import { GlobalContext } from '../context/GlobalContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { db } from '../firebaseConfig';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, remove } from 'firebase/database';
 
 const MainRecetas = () => {
 
@@ -67,8 +67,8 @@ const MainRecetas = () => {
 
             if (data) {
                 const recetasArray = Object.entries(data).map(([id, receta]) => ({
-                    id, 
-                    ...receta, 
+                    id,
+                    ...receta,
                 }));
                 setRecetas(recetasArray);
                 console.log("Recetas desde la BD:", recetasArray);
@@ -103,11 +103,11 @@ const MainRecetas = () => {
 
     const ingredientes = () => {
         const ingredientesArray = [];
-        for (let i = 1; i <= 20; i++) {  
+        for (let i = 1; i <= 20; i++) {
             const ingrediente = SelectedFood[0][`strIngredient${i}`];
             const medida = SelectedFood[0][`strMeasure${i}`];
 
-            if (ingrediente && ingrediente.trim() !== '') {  
+            if (ingrediente && ingrediente.trim() !== '') {
                 ingredientesArray.push(
                     <Text key={i}>{ingrediente} - {medida}</Text>
                 );
@@ -140,10 +140,34 @@ const MainRecetas = () => {
         }
     };
 
+    const eliminarReceta = (recetaId) => {
+        if (!auth.currentUser) return;
+
+        const recetaRef = ref(db, `usuarios/${auth.currentUser.uid}/recetas/${recetaId}`);
+
+        remove(recetaRef)
+            .then(() => {
+                alert("Receta eliminada exitosamente!");
+                setRecetas((prevRecetas) => prevRecetas.filter(receta => receta.idMeal !== recetaId));
+            })
+            .catch((error) => {
+                console.error("Error al eliminar la receta: ", error);
+                alert("Hubo un error al eliminar la receta. Intenta nuevamente.");
+            })
+            .finally(() => {
+                misRecetas();
+            })
+            ;
+    }
 
     const renderItem = ({ item }) => (
         <Pressable style={styles.card} onPress={() => fetchFood(item)}>
             <Image source={{ uri: item.strMealThumb }} style={styles.image} />
+            {item.strCategory === "Receta propia" ? (
+                <Pressable style={styles.deleteButton} onPress={() => eliminarReceta(item.id)}>
+                    <Icon name="delete" size={35} color="red" />
+                </Pressable>
+            ) : ''}
 
             <Pressable style={styles.favoriteButton} onPress={() => toggleFavorito(item.idMeal)}>
                 {favoritos.has(item.idMeal) ? (<Icon name="favorite" size={35} color="red" />) :
@@ -189,6 +213,7 @@ const MainRecetas = () => {
                         </>
                     }
                     data={filtro}
+                    extraData={recetas}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={renderItem}
                     numColumns={2}
@@ -339,6 +364,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 3,
+    },
+    deleteButton: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         width: 40,
         height: 40,

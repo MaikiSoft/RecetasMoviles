@@ -5,6 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { db, auth } from '../firebaseConfig';
 import { ref, push } from 'firebase/database';
 import uuid from 'react-native-uuid';
+import { useNavigation } from '@react-navigation/native';
 
 const CrearReceta = () => {
   const [nombreReceta, setNombreReceta] = useState('');
@@ -12,6 +13,10 @@ const CrearReceta = () => {
   const [pasos, setPasos] = useState([]);
   const [imagenURL, setImagenURL] = useState('');
   const [videoURL, setVideoURL] = useState('');
+  const navigation = useNavigation();
+  const salir = () => {
+    navigation.navigate('Tabs');
+  };
 
   const agregarIngrediente = () => {
     setIngredientes([...ingredientes, { nombre: '', cantidad: '', unidad: 'gramos' }]);
@@ -181,10 +186,14 @@ const CrearReceta = () => {
         value={videoURL}
         onChangeText={setVideoURL}
       />
-
-      <Pressable onPress={guardarReceta} style={styles.saveButton}>
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+       <Pressable onPress={salir} style={[styles.exitButton, { flex: 1, width: '40%' }]}> 
+        <Text style={styles.exitButtonText}>Salir</Text>
+       </Pressable>
+      <Pressable onPress={guardarReceta} style={[styles.saveButton, { flex: 1, width: '40%' }]}>  
         <Text style={styles.saveButtonText}>Guardar Receta</Text>
       </Pressable>
+      </View>
     </ScrollView>
   );
 };
@@ -242,6 +251,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   saveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  exitButton: {
+    backgroundColor: 'red',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  exitButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },

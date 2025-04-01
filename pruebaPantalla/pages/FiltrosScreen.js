@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, TextInput,ScrollView, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TextInput,ScrollView, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { getCategorias, getAreas, getIngredientes, getPLato } from '../services/ApiRecetas';
@@ -16,6 +16,11 @@ export default function FiltrosScreen() {
   const [text, setText] = useState('');
 
   const navigation = useNavigation();
+
+
+  const salir = () => {
+    navigation.navigate('Tabs');
+  }
 
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -114,8 +119,8 @@ export default function FiltrosScreen() {
         value={text}
         onChangeText={setText}
       />
-        <Pressable style={styles.btnSelect}>
-          <Text>Buscar</Text>
+        <Pressable style={styles.btnExit} onPress={() => salir()}>
+          <Image source={require('../assets/eliminar.png')} style={{ width: 20, height: 20 }} />
         </Pressable>
         </View>
         <View style={styles.resultsSearch}>       
@@ -182,6 +187,19 @@ const styles = StyleSheet.create({
   },
   btnSelect: {
     backgroundColor: '#DCDDDC',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 10,
+    marginHorizontal: 5,
+    elevation: 3, // Sombra para Android
+    shadowColor: '#000', // Sombra para iOS
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  btnExit: {
+    backgroundColor: 'red',
     padding: 10,
     borderWidth: 1,
     borderColor: '#000',
