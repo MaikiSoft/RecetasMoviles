@@ -10,20 +10,25 @@ import {LoginScreen} from './pages/LoginScreen';
 import PasosReceta from './pages/PasosRecetaScreen';
 import FiltroScreen from './pages/FiltrosScreen'
 import { GlobalProvider } from './context/GlobalContext';
+import CrearReceta from './pages/CrearReceta';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
   const Stack = createNativeStackNavigator();
 
   const TabNavigator = () => (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Tab.Screen
         name="Home"
         component={Main}
         options={{
           title: 'Principal',
           tabBarIcon: ({ focused }) => (
-            <Image source={require('./assets/icon.png')} style={styles.iconTab} />
+            <Image source={require('./assets/casa.png')} style={styles.iconTab} />
           ),
         }}
       />
@@ -33,7 +38,7 @@ export default function App() {
         options={{
           title: 'Receta Aleatoria',
           tabBarIcon: ({ focused }) => (
-            <Image source={require('./assets/icon.png')} style={styles.iconTab} />
+            <Image source={require('./assets/aleatorio.png')} style={styles.iconTab} />
           ),
         }}
       />
@@ -43,7 +48,7 @@ export default function App() {
         options={{
           title: 'Recetas favoritas',
           tabBarIcon: ({ focused }) => (
-            <Image source={require('./assets/icon.png')} style={styles.iconTab} />
+            <Image source={require('./assets/favorito.png')} style={styles.iconTab} />
           ),
         }}
       />
@@ -60,6 +65,7 @@ export default function App() {
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}></Stack.Screen>
             <Stack.Screen name="PasoRecetas" component={PasosReceta}></Stack.Screen>
             <Stack.Screen name="Filtros" component={FiltroScreen}></Stack.Screen>
+            <Stack.Screen name="CrearReceta" component={CrearReceta}></Stack.Screen>
           </Stack.Navigator>
         </SafeAreaView>
       </NavigationContainer>

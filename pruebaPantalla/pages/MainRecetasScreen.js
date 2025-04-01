@@ -6,11 +6,14 @@ import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } 
 import { GlobalContext } from '../context/GlobalContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { db } from '../firebaseConfig';
+import { ref, onValue } from 'firebase/database';
 
 const MainRecetas = () => {
 
     const { DataFood, setDataFood } = useContext(GlobalContext);
     const { SelectedFood, setSelectedFood } = useContext(GlobalContext);
+    const [recetas, setRecetas] = useState([]);
     const [filtro, setFiltro] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
@@ -54,11 +57,43 @@ const MainRecetas = () => {
         }
     }, [DataFood]);
 
+    useEffect(() => {
+        console.log("entra al use");
+        if (!auth.currentUser) return;
+        console.log("entra al use2");
+        const recetasRef = ref(db, `usuarios/${auth.currentUser.uid}/recetas`);
+        const unsubscribe = onValue(recetasRef, (snapshot) => {
+            const data = snapshot.val();
+
+            if (data) {
+                const recetasArray = Object.entries(data).map(([id, receta]) => ({
+                    id, 
+                    ...receta, 
+                }));
+                setRecetas(recetasArray);
+                console.log("Recetas desde la BD:", recetasArray);
+                console.log("lo que trae", data)
+            } else {
+                console.log("No hay recetas en la BD");
+                setRecetas([]);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const fetchFood = async (name) => {
-        const data = await getPLato(name);
-        setSelectedFood(data);
+        if (name.strCategory !== "Receta propia") {
+            const data = await getPLato(name.strMeal);
+            setSelectedFood(data);
+            console.log("after modal", SelectedFood)
+        } else {
+            const data = recetas.find((receta) => receta.idMeal === name.idMeal);
+            setSelectedFood([data]);
+            console.log("after modal", SelectedFood)
+        }
         setBackModal(styles.containerDark);
-        setModalVisible(true)
+        setModalVisible(true);
     };
 
     const CloseModal = () => {
@@ -67,17 +102,18 @@ const MainRecetas = () => {
     }
 
     const ingredientes = () => {
-        let ingredientesArray = [];
+        const ingredientesArray = [];
+        for (let i = 1; i <= 20; i++) {  
+            const ingrediente = SelectedFood[0][`strIngredient${i}`];
+            const medida = SelectedFood[0][`strMeasure${i}`];
 
-        for (let i = 1; i < 21; i++) {
-            if (SelectedFood[0][`strIngredient${i}`] !== '' && SelectedFood[0][`strIngredient${i}`] !== null) {
+            if (ingrediente && ingrediente.trim() !== '') {  
                 ingredientesArray.push(
-                    <Text key={i}>{SelectedFood[0][`strIngredient${i}`]} - {SelectedFood[0][`strMeasure${i}`]}</Text>
+                    <Text key={i}>{ingrediente} - {medida}</Text>
                 );
             }
         }
-
-        return ingredientesArray; // Devuelve todos los ingredientes como un array de elementos JSX
+        return ingredientesArray;
     };
 
     const cambio = () => {
@@ -106,7 +142,7 @@ const MainRecetas = () => {
 
 
     const renderItem = ({ item }) => (
-        <Pressable style={styles.card} onPress={() => fetchFood(item.strMeal)}>
+        <Pressable style={styles.card} onPress={() => fetchFood(item)}>
             <Image source={{ uri: item.strMealThumb }} style={styles.image} />
 
             <Pressable style={styles.favoriteButton} onPress={() => toggleFavorito(item.idMeal)}>
@@ -122,36 +158,41 @@ const MainRecetas = () => {
         </Pressable>
     );
 
-    //console.log(receta)
+    const misRecetas = () => {
+        setFiltro(recetas);
+        console.log('filtro', filtro)
+    }
+    console.log(recetas)
+    console.log(auth.currentUser.uid)
     return (
         <View style={styles.container}>
             <ImageBackground source={require('../assets/Bufett.jpg')}
                 style={styles.background} imageStyle={styles.imageBack} resizeMode="cover">
-            <FlatList
-                ListHeaderComponent={
-                    <>
-                        <View style={styles.profileView}>
-                            <View style={styles.leftColumn}>
-                                <Text style={styles.text}>Foto Perfil</Text>
+                <FlatList
+                    ListHeaderComponent={
+                        <>
+                            <View style={styles.profileView}>
+                                <View style={styles.client}>
+                                    <Text style={styles.text}>Nombre</Text>
+                                </View>
+                                <View style={styles.config}>
+                                    <Pressable onPress={() => navigation.navigate('CrearReceta')}>
+                                        <Image source={require('../assets/conf.png')} style={{ width: 30, height: 30 }} />
+                                    </Pressable>
+                                </View>
                             </View>
-                            <View style={styles.rightColumn}>
-                                <Text style={styles.text}>Nombre</Text>
-                                <Text style={styles.text}>email</Text>
-                                <Text style={styles.text}>Rectas favoritas:</Text>
+                            <View style={styles.head}>
+                                <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
+                                <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
+                                <Pressable onPress={() => misRecetas()} style={styles.btnOptions}><Text>mis recetas</Text></Pressable>
                             </View>
-                        </View>
-                        <View style={styles.head}>
-                            <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
-                            <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
-                            <Pressable onPress={logout} style={styles.btnOptions}><Text>Cerrar Sesion</Text></Pressable>
-                        </View>
-                    </>
-                }
-                data={filtro}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={renderItem}
-                numColumns={2}
-                columnWrapperStyle={styles.row}
+                        </>
+                    }
+                    data={filtro}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={renderItem}
+                    numColumns={2}
+                    columnWrapperStyle={styles.row}
                 />
             </ImageBackground>
             <Modal
@@ -235,24 +276,27 @@ const styles = StyleSheet.create({
     profileView: {
         flexDirection: 'row', // Organiza en fila
         width: '100%',
-        height: 200,
+        marginTop: 40,
+        marginBottom: 20,
+        height: 50,
         padding: 10,
     },
-    leftColumn: {
-        flex: 1,
-        backgroundColor: '#FFA07A',
+    config: {
+        backgroundColor: 'white',
+        width: 50,
+        height: 50,
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 5,
-        borderRadius: 10,
     },
-    rightColumn: {
-        flex: 1.5,
-        backgroundColor: '#FF6347',
+    client: {
+        backgroundColor: 'white',
+        width: '80%',
+        height: 50,
+        marginRight: 10,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: 5,
-        borderRadius: 10,
     },
     head: {
         flexDirection: 'row',

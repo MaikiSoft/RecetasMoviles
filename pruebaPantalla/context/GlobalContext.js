@@ -10,7 +10,6 @@ export const GlobalProvider = ({ children }) => {
     text: 'Beef',
     filtro: 'c',
   })
-
   const [favoritos, setFavoritos] = useState(new Set());
 
   useEffect(() => {
@@ -44,7 +43,7 @@ export const GlobalProvider = ({ children }) => {
     <GlobalContext.Provider value={{
       SelectedFood, setSelectedFood,
       DataFood, setDataFood,
-      favoritos, toggleFavorito
+      favoritos, toggleFavorito,
     }}>
       {children}
     </GlobalContext.Provider>
