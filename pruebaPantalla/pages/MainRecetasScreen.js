@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList, Pressable, Modal, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { getCategoriasFiltro, getPLato, getAreasFiltro, getIngredientesFiltro } from '../services/ApiRecetas';
+import { BlurView } from 'expo-blur';
 import { GlobalContext } from '../context/GlobalContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -16,6 +17,7 @@ const MainRecetas = () => {
     const [recetas, setRecetas] = useState([]);
     const [filtro, setFiltro] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
     const [backModal, setBackModal] = useState(styles.container);
     const navigation = useNavigation();
 
@@ -80,7 +82,7 @@ const MainRecetas = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [recetas]);
 
     const fetchFood = async (name) => {
         if (name.strCategory !== "Receta propia") {
@@ -192,33 +194,35 @@ const MainRecetas = () => {
         <View style={styles.container}>
             <ImageBackground source={require('../assets/Bufett.jpg')}
                 style={styles.background} imageStyle={styles.imageBack} resizeMode="cover">
-                <FlatList
-                    ListHeaderComponent={
-                        <>
-                            <View style={styles.profileView}>
-                                <View style={styles.client}>
-                                    <Text style={styles.text}>Nombre</Text>
+                
+                    <FlatList
+                        ListHeaderComponent={
+                            <>
+                                <View style={styles.profileView}>
+                                    <View style={[styles.client, { maxWidth: "100%", wordWrap: "break-word" }]}>
+                                        <Text style={styles.text}>{auth.currentUser.email}</Text>
+                                    </View>
+                                    <View style={styles.config}>
+                                        <Pressable onPress={() => setIsMenuVisible(true)}>
+                                            <Image source={require("../assets/conf.png")} style={{ width: 30, height: 30 }} />
+                                        </Pressable>
+                                    </View>
                                 </View>
-                                <View style={styles.config}>
-                                    <Pressable onPress={() => navigation.navigate('CrearReceta')}>
-                                        <Image source={require('../assets/conf.png')} style={{ width: 30, height: 30 }} />
-                                    </Pressable>
+                                <View style={styles.head}>
+                                    <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
+                                    <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
+                                    <Pressable onPress={() => misRecetas()} style={styles.btnOptions}><Text>mis recetas</Text></Pressable>
                                 </View>
-                            </View>
-                            <View style={styles.head}>
-                                <Pressable onPress={() => cambio()} style={styles.btnOptions}><Text>Cambiar</Text></Pressable>
-                                <Pressable onPress={() => navigation.navigate('Filtros')} style={styles.btnOptions}><Text>Filtro</Text></Pressable>
-                                <Pressable onPress={() => misRecetas()} style={styles.btnOptions}><Text>mis recetas</Text></Pressable>
-                            </View>
-                        </>
-                    }
-                    data={filtro}
-                    extraData={recetas}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={renderItem}
-                    numColumns={2}
-                    columnWrapperStyle={styles.row}
-                />
+                            </>
+                        }
+                        data={filtro}
+                        extraData={recetas}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={renderItem}
+                        numColumns={2}
+                        columnWrapperStyle={styles.row}
+                    />
+              <BlurView intensity={100}/>
             </ImageBackground>
             <Modal
                 animationType="slide"
@@ -280,10 +284,31 @@ const MainRecetas = () => {
                     </View>
                 </View>
             </Modal>
+            {/*modal options*/}
+            <Modal transparent={true} visible={isMenuVisible} animationType="fade">
+                <View style={styles.overlay}>
+                    <View style={styles.menuBox}>
+                        <TouchableOpacity onPress={() => {
+                            setIsMenuVisible(false);
+                            navigation.navigate("CrearReceta");
+                        }} style={{ borderWidth: 1, borderRadius: 5, marginBottom: 10, width: '100%', textAlign: 'center' }}>
+                            <Text style={styles.menuOption}>Nueva Receta</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={logout} style={{ borderWidth: 1, borderRadius: 5, borderColor: 'red', width: '100%', textAlign: 'center' }}>
+                            <Text style={[styles.menuOption, { color: "red" }]}>Salir</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => setIsMenuVisible(false)}>
+                            <Text style={styles.cancelOption}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
 
     )
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -492,10 +517,34 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
     text: {
-        fontSize: 18,
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
-    }
+        fontSize: "10px",
+        overflowWrap: "break-word"
+    },
+    overlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    menuBox: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 10,
+        width: 250,
+        alignItems: "center",
+    },
+    menuOption: {
+        fontSize: 18,
+        marginVertical: 10,
+        textAlign: 'center'
+    },
+    cancelOption: {
+        fontSize: 16,
+        color: "gray",
+        marginTop: 10,
+    },
 });
 
 export default MainRecetas;
