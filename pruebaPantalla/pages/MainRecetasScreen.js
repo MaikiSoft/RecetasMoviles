@@ -82,7 +82,7 @@ const MainRecetas = () => {
         });
 
         return () => unsubscribe();
-    }, [recetas]);
+    }, []);
 
     const fetchFood = async (name) => {
         if (name.strCategory !== "Receta propia") {

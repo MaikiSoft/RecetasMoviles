@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View, Image, Pressable, ActivityIndicator, FlatList, Modal, ScrollView, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
-import { getRecetaPorId, getPLato} from '../services/ApiRecetas';
+import { getRecetaPorId, getPLato } from '../services/ApiRecetas';
 import { GlobalContext } from '../context/GlobalContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const FavoritosScreen = () => {
-    
+
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const [receta, setReceta] = useState([]);
@@ -89,7 +89,9 @@ const FavoritosScreen = () => {
         <View style={styles.container}>
             <ImageBackground source={require('../assets/Bufett.jpg')}
                 style={styles.background} imageStyle={styles.imageBack} resizeMode="cover">
-                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>Mis Favoritos</Text>
+                <View style={{backgroundColor:'white', borderRadius:5, padding:5}}>
+                    <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10, color:'brown' }}>Mis Favoritos</Text>
+                </View>
                 {loading ? <ActivityIndicator size="large" color="#0000ff" /> : (
                     <FlatList
                         data={receta}
